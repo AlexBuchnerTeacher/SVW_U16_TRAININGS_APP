@@ -10,20 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Repository auschecken
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Flutter installieren (Version mit Dart 3.8)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.8'
 
+      # 3. Abhängigkeiten installieren
       - name: Install dependencies
         run: flutter pub get
 
+      # 4. Web-Build (mit korrektem base-href für GitHub Pages)
       - name: Build Flutter Web
-        run: flutter build web --release
+        run: flutter build web --release --base-href /SVW_U16_TRAININGS_APP/
 
+      # 5. Deploy zu GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
