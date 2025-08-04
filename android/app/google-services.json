@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "978406988541",
+    "project_id": "svw-u16-training",
+    "storage_bucket": "svw-u16-training.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978406988541:android:746428291f09250d247c94",
+        "android_client_info": {
+          "package_name": "com.example.svw_u16_training_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGSTESBRXMUKhANXAhz7WrE30GfzwnWm0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

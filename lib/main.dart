@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'screens/main_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // automatisch durch flutterfire configure erstellt
+import 'screens/welcome_screen.dart';
 
-void main() {
+void main() async {
+  // Firebase muss vor runApp initialisiert werden
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -21,7 +28,7 @@ class MyApp extends StatelessWidget {
         ).copyWith(
           primary: Colors.black,
           onPrimary: Colors.white,
-          surface: Colors.white, // früher background, jetzt surface
+          surface: Colors.white,
           onSurface: Colors.black,
         ),
         appBarTheme: const AppBarTheme(
@@ -30,7 +37,8 @@ class MyApp extends StatelessWidget {
           centerTitle: false,
           elevation: 0,
         ),
-        cardTheme: CardThemeData(
+        // Fix: CardThemeData statt CardTheme
+        cardTheme: const CardThemeData(
           color: Colors.white,
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -60,7 +68,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MainScreen(),
+      home: const WelcomeScreen(), // Start mit WelcomeScreen
     );
   }
 }

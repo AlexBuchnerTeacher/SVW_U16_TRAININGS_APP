@@ -62,7 +62,7 @@ class PlayerCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Kleiner Trainingsstatus – optional dynamisch
+                  // Kleiner Trainingsstatus
                   Row(
                     children: [
                       const Icon(Icons.fitness_center,

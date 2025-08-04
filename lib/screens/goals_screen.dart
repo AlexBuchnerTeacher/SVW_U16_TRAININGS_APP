@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/training_topic.dart';
 
 class GoalsScreen extends StatefulWidget {
-  const GoalsScreen({super.key});
+  final String userId; // Neu: Spieler-UID vom MainScreen
+
+  const GoalsScreen({super.key, required this.userId});
 
   @override
   State<GoalsScreen> createState() => _GoalsScreenState();
@@ -16,6 +18,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
   List<Map<String, dynamic>> allGoals = [];
   bool isLoading = true;
 
+  final _firestore = FirebaseFirestore.instance;
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +28,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   Future<void> _loadData() async {
     await _loadPredefinedGoals();
-    await _loadSavedGoals();
+    await _loadSavedGoalsFromFirestore();
     setState(() {
       isLoading = false;
     });
@@ -48,50 +52,47 @@ class _GoalsScreenState extends State<GoalsScreen> {
         .toList();
   }
 
-  /// Gespeicherte Daten laden
-  Future<void> _loadSavedGoals() async {
-    final prefs = await SharedPreferences.getInstance();
+  /// Gespeicherte Daten aus Firestore laden
+  Future<void> _loadSavedGoalsFromFirestore() async {
+    final docRef = _firestore.collection('users').doc(widget.userId).collection('meta').doc('goals');
+    final doc = await docRef.get();
 
-    // Auswahl für vorgegebene Themen laden
-    final savedPredefined = prefs.getStringList('selectedGoals') ?? [];
-    for (var goal in allGoals) {
-      if (savedPredefined.contains(goal["id"].toString())) {
-        goal["selected"] = true;
+    if (doc.exists) {
+      final data = doc.data()!;
+      // Vorgegebene Ziele
+      final predefinedSelected = List<String>.from(data['selectedGoals'] ?? []);
+      for (var goal in allGoals) {
+        if (predefinedSelected.contains(goal["id"].toString())) {
+          goal["selected"] = true;
+        }
       }
+
+      // Eigene Ziele
+      final customGoals = List<Map<String, dynamic>>.from(data['customGoals'] ?? []);
+      allGoals.addAll(customGoals);
     }
-
-    // Eigene Ziele laden
-    final savedCustomGoals = prefs.getStringList('customGoals') ?? [];
-    final customGoals = savedCustomGoals.map((e) {
-      return Map<String, dynamic>.from(jsonDecode(e));
-    }).toList();
-
-    allGoals.addAll(customGoals);
   }
 
-  Future<void> _saveGoals() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Vorgegebene Themen speichern
+  Future<void> _saveGoalsToFirestore() async {
     final predefinedIds = allGoals
         .where((g) => g["isCustom"] == false && g["selected"] == true)
         .map((g) => g["id"].toString())
         .toList();
-    await prefs.setStringList('selectedGoals', predefinedIds);
 
-    // Eigene Ziele speichern
     final customGoals = allGoals.where((g) => g["isCustom"] == true).toList();
-    await prefs.setStringList(
-      'customGoals',
-      customGoals.map((e) => jsonEncode(e)).toList(),
-    );
+
+    final docRef = _firestore.collection('users').doc(widget.userId).collection('meta').doc('goals');
+    await docRef.set({
+      'selectedGoals': predefinedIds,
+      'customGoals': customGoals,
+    });
   }
 
   void _toggleGoal(int index, bool isSelected) {
     setState(() {
       allGoals[index]["selected"] = isSelected;
     });
-    _saveGoals();
+    _saveGoalsToFirestore();
   }
 
   void _addCustomGoal(String title, String description) {
@@ -104,7 +105,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         "isCustom": true,
       });
     });
-    _saveGoals();
+    _saveGoalsToFirestore();
   }
 
   void _editCustomGoal(int index, String newTitle, String newDescription) {
@@ -112,14 +113,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
       allGoals[index]["title"] = newTitle;
       allGoals[index]["description"] = newDescription;
     });
-    _saveGoals();
+    _saveGoalsToFirestore();
   }
 
   void _deleteCustomGoal(int index) {
     setState(() {
       allGoals.removeAt(index);
     });
-    _saveGoals();
+    _saveGoalsToFirestore();
   }
 
   Future<void> _showAddGoalDialog({int? editIndex}) async {

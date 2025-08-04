@@ -3,16 +3,14 @@ import '../models/training_topic.dart';
 
 class TopicCard extends StatefulWidget {
   final TrainingTopic topic;
-  final bool isSelectable;
-  final bool isSelected;
-  final ValueChanged<bool>? onSelected;
+  final bool isDone;
+  final ValueChanged<bool> onChanged;
 
   const TopicCard({
     super.key,
     required this.topic,
-    this.isSelectable = false,
-    this.isSelected = false,
-    this.onSelected,
+    required this.isDone,
+    required this.onChanged,
   });
 
   @override
@@ -34,7 +32,7 @@ class _TopicCardState extends State<TopicCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Titelzeile
+          // Titelzeile mit Checkbox
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             title: Text(
@@ -45,26 +43,29 @@ class _TopicCardState extends State<TopicCard> {
               widget.topic.description,
               style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
-            trailing: widget.isSelectable
-                ? Checkbox(
-                    value: widget.isSelected,
-                    onChanged: (value) {
-                      if (widget.onSelected != null) {
-                        widget.onSelected!(value ?? false);
-                      }
-                    },
-                  )
-                : IconButton(
-                    icon: Icon(
-                      _isExpanded ? Icons.expand_less : Icons.expand_more,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isExpanded = !_isExpanded;
-                      });
-                    },
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Checkbox(
+                  value: widget.isDone,
+                  activeColor: Colors.black,
+                  onChanged: (value) {
+                    widget.onChanged(value ?? false);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(
+                    _isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.black,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
 
           // Aufklappbarer Bereich
