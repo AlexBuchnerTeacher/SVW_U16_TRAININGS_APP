@@ -8,7 +8,7 @@ class PlanScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Trainingsplan')),
       body: const Center(
-        child: Text('Hier wird der Trainingsplan angezeigt'),
+        child: Text('Hier wird bald der Trainingsplan angezeigt'),
       ),
     );
   }

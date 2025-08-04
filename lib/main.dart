@@ -12,10 +12,10 @@ class SVWTrainingApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SV Waldeck U16 Trainingsplan',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.black, // Schwarz/Weiß Look
-        brightness: Brightness.light,
+        colorSchemeSeed: Colors.black,
       ),
       home: const WelcomeScreen(),
     );

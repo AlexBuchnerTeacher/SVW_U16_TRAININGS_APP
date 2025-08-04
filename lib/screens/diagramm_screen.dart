@@ -8,7 +8,7 @@ class DiagrammScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Fortschrittsdiagramm')),
       body: const Center(
-        child: Text('Hier kommt das Diagramm'),
+        child: Text('Hier kommt bald das Diagramm'),
       ),
     );
   }
