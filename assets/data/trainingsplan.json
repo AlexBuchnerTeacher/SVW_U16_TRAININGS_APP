@@ -1,0 +1,112 @@
+[
+  {
+    "datum": "18.08",
+    "laufart": "Grundlagenausdauer",
+    "lauf_dauer": 30,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": null,
+    "mo5es": true,
+    "dehnen": 20,
+    "progression": "+0 Min"
+  },
+  {
+    "datum": "19.08",
+    "laufart": "Fahrtspiel",
+    "lauf_dauer": 30,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": 30,
+    "mo5es": false,
+    "dehnen": 20,
+    "progression": "+0 Min"
+  },
+  {
+    "datum": "20.08",
+    "laufart": "Intervalle",
+    "lauf_dauer": null,
+    "intervalle_sprints": 10,
+    "fahrtspiel_dauer": null,
+    "mo5es": true,
+    "dehnen": 20,
+    "progression": "+0 Sprints"
+  },
+  {
+    "datum": "21.08",
+    "laufart": "Grundlagenausdauer",
+    "lauf_dauer": 35,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": null,
+    "mo5es": false,
+    "dehnen": 20,
+    "progression": "+5 Min"
+  },
+  {
+    "datum": "22.08",
+    "laufart": "Fahrtspiel",
+    "lauf_dauer": 30,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": 30,
+    "mo5es": true,
+    "dehnen": 20,
+    "progression": "+0 Min"
+  },
+  {
+    "datum": "23.08",
+    "laufart": "Intervalle",
+    "lauf_dauer": null,
+    "intervalle_sprints": 12,
+    "fahrtspiel_dauer": null,
+    "mo5es": false,
+    "dehnen": 20,
+    "progression": "+2 Sprints"
+  },
+  {
+    "datum": "24.08",
+    "laufart": "Grundlagenausdauer",
+    "lauf_dauer": 40,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": null,
+    "mo5es": true,
+    "dehnen": 20,
+    "progression": "+5 Min"
+  },
+  {
+    "datum": "25.08",
+    "laufart": "Fahrtspiel",
+    "lauf_dauer": 30,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": 30,
+    "mo5es": false,
+    "dehnen": 20,
+    "progression": "+0 Min"
+  },
+  {
+    "datum": "26.08",
+    "laufart": "Intervalle",
+    "lauf_dauer": null,
+    "intervalle_sprints": 14,
+    "fahrtspiel_dauer": null,
+    "mo5es": true,
+    "dehnen": 20,
+    "progression": "+2 Sprints"
+  },
+  {
+    "datum": "27.08",
+    "laufart": "Grundlagenausdauer",
+    "lauf_dauer": 40,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": null,
+    "mo5es": false,
+    "dehnen": 20,
+    "progression": "+0 Min"
+  },
+  {
+    "datum": "28.08",
+    "laufart": "Fahrtspiel",
+    "lauf_dauer": 35,
+    "intervalle_sprints": null,
+    "fahrtspiel_dauer": 35,
+    "mo5es": true,
+    "dehnen": 20,
+    "progression": "+5 Min"
+  }
+]

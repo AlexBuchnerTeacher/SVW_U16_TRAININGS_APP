@@ -1,10 +1,11 @@
 class TrainingDay {
   final String datum;
-  final String laufart; // GA, Fahrtspiel, Intervalle
-  final int? laufDauer; // Minuten
-  final int? intervalleSprints; // Anzahl
+  final String laufart;
+  final int? laufDauer;
+  final int? intervalleSprints;
+  final int? fahrtspielDauer;
   final bool mo5es;
-  final int dehnen; // Minuten
+  final int dehnen;
   final String progression;
 
   TrainingDay({
@@ -12,6 +13,7 @@ class TrainingDay {
     required this.laufart,
     this.laufDauer,
     this.intervalleSprints,
+    this.fahrtspielDauer,
     required this.mo5es,
     required this.dehnen,
     required this.progression,
@@ -23,6 +25,7 @@ class TrainingDay {
       laufart: json['laufart'],
       laufDauer: json['lauf_dauer'],
       intervalleSprints: json['intervalle_sprints'],
+      fahrtspielDauer: json['fahrtspiel_dauer'],
       mo5es: json['mo5es'],
       dehnen: json['dehnen'],
       progression: json['progression'],
