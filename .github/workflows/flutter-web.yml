@@ -8,29 +8,47 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 
     steps:
-      # 1. Repository auschecken
+      # 1. Checkout Code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Flutter installieren (Version mit Dart 3.8)
+      # 2. Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.8'
 
-      # 3. Abhängigkeiten installieren
+      # 3. Dependencies laden
       - name: Install dependencies
         run: flutter pub get
 
-      # 4. Web-Build (mit korrektem base-href für GitHub Pages)
+      # 4. Build Web mit base-href
       - name: Build Flutter Web
         run: flutter build web --release --base-href /SVW_U16_TRAININGS_APP/
 
-      # 5. Deploy zu GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      # 5. Upload Artifact für Pages
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/web
+          path: build/web
+
+  # Deploy-Job
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
