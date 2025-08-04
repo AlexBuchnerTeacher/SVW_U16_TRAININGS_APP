@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/training_day.dart';
 import 'section_detail.dart';
@@ -10,12 +11,16 @@ class TrainingCard extends StatelessWidget {
   final int feeling;
   final int effort;
 
+  final bool highlight;
+  final bool completed;
+  final bool flash;
+
   final Function(String task, bool value) onSubtaskChanged;
   final Function(String text) onNoteChanged;
   final Function(int value) onFeelingChanged;
   final Function(int value) onEffortChanged;
 
-  const TrainingCard({
+  TrainingCard({
     super.key,
     required this.day,
     required this.subtasks,
@@ -26,69 +31,95 @@ class TrainingCard extends StatelessWidget {
     required this.onNoteChanged,
     required this.onFeelingChanged,
     required this.onEffortChanged,
+    this.highlight = false,
+    this.completed = false,
+    this.flash = false,
   });
+
+  // Inspirierende Texte für Notizen
+  static final List<String> hintTexts = [
+    'Was hat dich heute stolz gemacht?',
+    'Gab es einen Moment, der richtig Spaß gemacht hat?',
+    'Was war deine größte Herausforderung heute?',
+    'Was würdest du nächstes Mal besser machen wollen?',
+    'Gab es etwas, das dich heute überrascht hat?',
+  ];
+
+  // Zufälliger Hinweistext
+  final String randomHint = hintTexts[Random().nextInt(hintTexts.length)];
 
   @override
   Widget build(BuildContext context) {
+    // Hintergrundfarbe je nach Status
+    final cardColor = flash
+        ? Colors.yellow[100] // Kurzzeit-Flash
+        : completed
+            ? Colors.green[50] // Abgeschlossen
+            : highlight
+                ? Colors.grey[200] // Erster offener Tag
+                : Colors.white;
+
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: cardColor,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.black12, width: 1),
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: highlight ? Colors.black : Colors.grey[300]!,
+          width: highlight ? 1.5 : 1,
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Datum + Laufart
+            // Datum + Laufart
             Text(
               '${day.datum} – ${day.laufart}',
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // Unterübungen
-            Wrap(
-              spacing: 16,
-              runSpacing: 8,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildSubtaskCheckbox('Laufen', 'laufen'),
                 if (day.mo5es) _buildSubtaskCheckbox('Mo5es', 'mo5es'),
                 _buildSubtaskCheckbox('Dehnen', 'dehnen'),
               ],
             ),
-            const Divider(height: 24),
+            const Divider(height: 20),
 
-            // Sektionen mit Details
+            // Lauf-Details
             SectionDetail(
               title: 'Laufen',
               value: buildLaufenDetail(day),
               pulse: buildPulseRange(day.laufart),
             ),
+
+            // Mo5es-Details
             if (day.mo5es)
               SectionDetail(
                 title: 'Mo5es',
                 value: '30 Min Athletiktraining\nFokus: Core, Sprungkraft, Stabilität',
                 pulse: 'Kein Pulsbereich – saubere Ausführung wichtig',
               ),
+
+            // Dehnen-Details
             SectionDetail(
               title: 'Dehnen',
               value:
                   '15–20 Min fußballspezifisch (Hüftbeuger, Adduktoren, Hamstrings, Waden)',
               pulse: '< 123 bpm (Regenerativ)',
             ),
-            const Divider(height: 24),
+            const Divider(height: 20),
 
-            // Bewertung Gefühl
-            const Text(
-              'Gefühl:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
+            // Gefühl (Smilies) – Icons zentriert, Text darüber
             RatingRow(
               currentRating: feeling,
               isFeeling: true,
@@ -96,27 +127,25 @@ class TrainingCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Bewertung Anstrengung
-            const Text(
-              'Anstrengung:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
+            // Anstrengung (Flammen) – Icons zentriert, Text darüber
             RatingRow(
               currentRating: effort,
               isFeeling: false,
               onRatingChanged: onEffortChanged,
             ),
-            const Divider(height: 24),
+            const Divider(height: 20),
 
-            // Notizfeld
+            // Notizenfeld mit Label + random Hint
             TextField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 labelText: 'Notizen',
+                hintText: randomHint,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               ),
               minLines: 1,
-              maxLines: 3,
+              maxLines: 2,
               onChanged: onNoteChanged,
               controller: TextEditingController(text: notes),
             ),
@@ -126,7 +155,7 @@ class TrainingCard extends StatelessWidget {
     );
   }
 
-  // Checkbox für Unterübungen
+  // Checkboxen
   Widget _buildSubtaskCheckbox(String label, String key) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -135,13 +164,15 @@ class TrainingCard extends StatelessWidget {
           value: subtasks[key] ?? false,
           onChanged: (value) => onSubtaskChanged(key, value ?? false),
           activeColor: Colors.black,
+          visualDensity: VisualDensity.compact,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        Text(label),
+        Text(label, style: const TextStyle(fontSize: 14)),
       ],
     );
   }
 
-  // Laufen-Details je nach Laufart
+  // Lauf-Details
   String buildLaufenDetail(TrainingDay day) {
     switch (day.laufart) {
       case 'Grundlagenausdauer':
@@ -155,7 +186,7 @@ class TrainingCard extends StatelessWidget {
     }
   }
 
-  // Pulsbereiche je nach Laufart
+  // Pulsbereiche
   String buildPulseRange(String laufart) {
     switch (laufart) {
       case 'Grundlagenausdauer':

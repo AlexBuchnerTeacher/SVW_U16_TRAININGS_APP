@@ -15,28 +15,42 @@ class SectionDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Titel
           Text(
             title,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
           const SizedBox(height: 2),
+
+          // Inhalt
           Text(
             value,
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              height: 1.3,
+            ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            'Puls: $pulse',
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
+          const SizedBox(height: 4),
+
+          // Pulsbereich dezent
+          if (pulse.isNotEmpty)
+            Text(
+              pulse,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          const Divider(height: 16, thickness: 0.5),
         ],
       ),
     );

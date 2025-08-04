@@ -27,6 +27,13 @@ class _PlanScreenState extends State<PlanScreen> {
   Map<String, int> effortRatings = {};
 
   final _firestore = FirebaseFirestore.instance;
+  final ScrollController _scrollController = ScrollController();
+
+  String? firstOpenDay;
+  String? flashDay; // Für den gelben Flash
+
+  // Keys für jede Card
+  final Map<String, GlobalKey> cardKeys = {};
 
   @override
   void initState() {
@@ -38,9 +45,12 @@ class _PlanScreenState extends State<PlanScreen> {
     await loadTrainingData();
     await loadFromFirestore();
     widget.onProgressChanged?.call(getCompletedCount(), trainingDays.length);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToFirstOpenDay();
+    });
   }
 
-  // Trainingsplan aus JSON laden
   Future<void> loadTrainingData() async {
     final String response =
         await rootBundle.loadString('assets/data/trainingsplan.json');
@@ -48,7 +58,6 @@ class _PlanScreenState extends State<PlanScreen> {
     trainingDays = data.map((json) => TrainingDay.fromJson(json)).toList();
   }
 
-  // Trainingsstatus aus Firestore laden
   Future<void> loadFromFirestore() async {
     final planRef =
         _firestore.collection('users').doc(widget.userId).collection('plan');
@@ -74,7 +83,7 @@ class _PlanScreenState extends State<PlanScreen> {
       efforts[datum] = (data['effort'] ?? 0) as int;
     }
 
-    // Falls neue Tage im JSON sind → Standardwerte anlegen
+    // Neue Tage ergänzen
     for (var day in trainingDays) {
       if (!subtasks.containsKey(day.datum)) {
         subtasks[day.datum] = {
@@ -95,12 +104,56 @@ class _PlanScreenState extends State<PlanScreen> {
       }
     }
 
+    // Ersten offenen Tag bestimmen
+    firstOpenDay = _getFirstOpenDay(subtasks);
+
     setState(() {
       subtaskStatus = subtasks;
       notes = userNotes;
       feelingRatings = feelings;
       effortRatings = efforts;
       isLoading = false;
+    });
+  }
+
+  String? _getFirstOpenDay(Map<String, Map<String, bool>> subtasks) {
+    for (final day in trainingDays) {
+      if (!isDayCompleted(day.datum, day.mo5es)) {
+        return day.datum;
+      }
+    }
+    return null;
+  }
+
+  void _scrollToFirstOpenDay() {
+    if (firstOpenDay == null) return;
+
+    final key = cardKeys[firstOpenDay];
+    final index = trainingDays.indexWhere((d) => d.datum == firstOpenDay);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (key?.currentContext != null) {
+        // Exakter Scroll mit ensureVisible
+        Scrollable.ensureVisible(
+          key!.currentContext!,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+          alignment: 0.2,
+        );
+      } else if (index != -1) {
+        // Fallback mit animateTo
+        _scrollController.animateTo(
+          index * 190.0, // geschätzte Höhe pro Card
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+
+      // Farbflash aktivieren
+      setState(() => flashDay = firstOpenDay);
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) setState(() => flashDay = null);
+      });
     });
   }
 
@@ -118,15 +171,20 @@ class _PlanScreenState extends State<PlanScreen> {
     }, SetOptions(merge: true));
 
     widget.onProgressChanged?.call(getCompletedCount(), trainingDays.length);
+
+    setState(() {
+      firstOpenDay = _getFirstOpenDay(subtaskStatus);
+    });
+
+    // Scroll erneut ausführen, falls sich der erste offene Tag verschiebt
+    _scrollToFirstOpenDay();
   }
 
-  // Prüfen, ob ein Tag abgeschlossen ist
   bool isDayCompleted(String datum, bool mo5esActive) {
     final subtasks = subtaskStatus[datum] ?? {};
     final laufen = subtasks['laufen'] ?? false;
     final dehnen = subtasks['dehnen'] ?? false;
     final mo5es = mo5esActive ? (subtasks['mo5es'] ?? false) : true;
-
     return laufen && dehnen && mo5es;
   }
 
@@ -150,23 +208,27 @@ class _PlanScreenState extends State<PlanScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Spieler-Card mit Firestore-Daten
+                // Spieler-Info
                 FutureBuilder<DocumentSnapshot>(
                   future:
                       _firestore.collection('users').doc(widget.userId).get(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const SizedBox.shrink();
                     final data = snapshot.data!.data() as Map<String, dynamic>;
-                    return PlayerCard(
-                      name: data['name'] ?? '',
-                      position: data['position'] ?? '',
-                      age: data['age'] ?? 0,
-                      imagePath: data['imagePath'] ?? 'assets/images/placeholder.png',
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: PlayerCard(
+                        name: data['name'] ?? '',
+                        position: data['position'] ?? '',
+                        age: data['age'] ?? 0,
+                        imagePath: data['imagePath'] ??
+                            'assets/images/placeholder.png',
+                      ),
                     );
                   },
                 ),
 
-                // Fortschrittsanzeige
+                // Fortschrittsbalken
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -191,20 +253,31 @@ class _PlanScreenState extends State<PlanScreen> {
                   ),
                 ),
 
-                // Liste der TrainingCards
+                // TrainingCards
                 Expanded(
                   child: ListView.builder(
+                    controller: _scrollController,
                     itemCount: trainingDays.length,
                     itemBuilder: (context, index) {
                       final day = trainingDays[index];
+                      final highlight = day.datum == firstOpenDay;
+                      final completed = isDayCompleted(day.datum, day.mo5es);
+                      final flash = day.datum == flashDay;
+
                       return TrainingCard(
+                        key: cardKeys.putIfAbsent(day.datum, () => GlobalKey()),
                         day: day,
                         subtasks: subtaskStatus[day.datum]!,
                         notes: notes[day.datum] ?? '',
                         feeling: feelingRatings[day.datum] ?? 0,
                         effort: effortRatings[day.datum] ?? 0,
+                        highlight: highlight,
+                        completed: completed,
+                        flash: flash,
                         onSubtaskChanged: (task, value) {
-                          subtaskStatus[day.datum]![task] = value;
+                          setState(() {
+                            subtaskStatus[day.datum]![task] = value;
+                          });
                           saveToFirestore(day.datum);
                         },
                         onNoteChanged: (text) {

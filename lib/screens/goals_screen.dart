@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/training_topic.dart';
 
 class GoalsScreen extends StatefulWidget {
-  final String userId; // Neu: Spieler-UID vom MainScreen
+  final String userId;
 
   const GoalsScreen({super.key, required this.userId});
 
@@ -34,7 +34,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     });
   }
 
-  /// Vorgegebene Themen laden
+  /// Vordefinierte Ziele aus JSON laden
   Future<void> _loadPredefinedGoals() async {
     final String response =
         await rootBundle.loadString('assets/data/training_topics.json');
@@ -46,6 +46,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
               "id": t.id,
               "title": t.title,
               "description": t.description,
+              "error_patterns": t.errorPatterns,
+              "solutions": t.solutions,
+              "training_drills": t.trainingDrills,
               "selected": false,
               "isCustom": false,
             })
@@ -54,25 +57,39 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   /// Gespeicherte Daten aus Firestore laden
   Future<void> _loadSavedGoalsFromFirestore() async {
-    final docRef = _firestore.collection('users').doc(widget.userId).collection('meta').doc('goals');
-    final doc = await docRef.get();
+    try {
+      final docRef = _firestore
+          .collection('users')
+          .doc(widget.userId)
+          .collection('meta')
+          .doc('goals');
+      final doc = await docRef.get();
 
-    if (doc.exists) {
-      final data = doc.data()!;
-      // Vorgegebene Ziele
-      final predefinedSelected = List<String>.from(data['selectedGoals'] ?? []);
+      if (!doc.exists) {
+        debugPrint("⚠️ Keine gespeicherten Ziele gefunden");
+        return;
+      }
+
+      final data = doc.data();
+      if (data == null) return;
+
+      // Vorgegebene Ziele als ausgewählt markieren
+      final predefinedSelected = List<String>.from(data['predefinedGoals'] ?? []);
       for (var goal in allGoals) {
         if (predefinedSelected.contains(goal["id"].toString())) {
           goal["selected"] = true;
         }
       }
 
-      // Eigene Ziele
+      // Eigene Ziele hinzufügen
       final customGoals = List<Map<String, dynamic>>.from(data['customGoals'] ?? []);
       allGoals.addAll(customGoals);
+    } catch (e, st) {
+      debugPrint("Fehler beim Laden der Ziele: $e\n$st");
     }
   }
 
+  /// Ziele speichern
   Future<void> _saveGoalsToFirestore() async {
     final predefinedIds = allGoals
         .where((g) => g["isCustom"] == false && g["selected"] == true)
@@ -81,9 +98,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
     final customGoals = allGoals.where((g) => g["isCustom"] == true).toList();
 
-    final docRef = _firestore.collection('users').doc(widget.userId).collection('meta').doc('goals');
+    final docRef = _firestore
+        .collection('users')
+        .doc(widget.userId)
+        .collection('meta')
+        .doc('goals');
     await docRef.set({
-      'selectedGoals': predefinedIds,
+      'predefinedGoals': predefinedIds,
       'customGoals': customGoals,
     });
   }
@@ -101,6 +122,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
         "id": DateTime.now().millisecondsSinceEpoch,
         "title": title,
         "description": description,
+        "error_patterns": [],
+        "solutions": [],
+        "training_drills": [],
         "selected": false,
         "isCustom": true,
       });
@@ -232,20 +256,75 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         borderRadius: BorderRadius.circular(12),
                         side: const BorderSide(color: Colors.black12),
                       ),
-                      child: ListTile(
-                        title: Text(
-                          goal["title"],
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                      child: ExpansionTile(
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                goal["title"],
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Checkbox(
+                              value: goal["selected"],
+                              onChanged: (value) =>
+                                  _toggleGoal(index, value ?? false),
+                            ),
+                          ],
                         ),
-                        subtitle: goal["description"].isNotEmpty
-                            ? Text(goal["description"])
-                            : null,
-                        trailing: Checkbox(
-                          value: goal["selected"],
-                          onChanged: (value) =>
-                              _toggleGoal(index, value ?? false),
-                        ),
+                        children: [
+                          if (goal["description"] != null &&
+                              goal["description"].isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(goal["description"]),
+                            ),
+                          if (goal["error_patterns"] != null &&
+                              goal["error_patterns"].isNotEmpty) ...[
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Häufige Fehler:",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            ...goal["error_patterns"].map<Widget>((e) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 4),
+                                  child: Text("• $e"),
+                                )),
+                          ],
+                          if (goal["solutions"] != null &&
+                              goal["solutions"].isNotEmpty) ...[
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Lösungen:",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            ...goal["solutions"].map<Widget>((e) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 4),
+                                  child: Text("• $e"),
+                                )),
+                          ],
+                          if (goal["training_drills"] != null &&
+                              goal["training_drills"].isNotEmpty) ...[
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Übungen:",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            ...goal["training_drills"].map<Widget>((e) =>
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 4),
+                                  child: Text("• $e"),
+                                )),
+                          ],
+                        ],
                       ),
                     ),
                   ),

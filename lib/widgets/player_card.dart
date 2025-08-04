@@ -17,29 +17,31 @@ class PlayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: Colors.black12),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Spielerbild links
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+            // Spielerbild – rund, hochauflösend
+            ClipOval(
               child: Image.asset(
                 imagePath,
-                width: 80,
-                height: 80,
+                width: 90,   // etwas größer, um Schärfe zu erhöhen
+                height: 90,
                 fit: BoxFit.cover,
+                filterQuality: FilterQuality.high, // beste Filterung
+                isAntiAlias: true, // saubere Rundung
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
 
-            // Infos rechts
+            // Spielerinfos
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,26 +49,22 @@ class PlayerCard extends StatelessWidget {
                   Text(
                     name,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Position: $position',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  Text(
-                    'Alter: $age Jahre',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
 
-                  // Kleiner Trainingsstatus
+                  Text(
+                    '$position • $age Jahre',
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 6),
+
                   Row(
                     children: [
                       const Icon(Icons.fitness_center,
-                          size: 16, color: Colors.black),
+                          size: 16, color: Colors.black54),
                       const SizedBox(width: 4),
                       Text(
                         'Sommer-Vorbereitung 2025',
