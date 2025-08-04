@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "title": "Passqualität",
+    "description": "Präzise Pässe sichern Ballbesitz und Spielfluss. Fokus: Technik, Timing und Entscheidungsfindung.",
+    "error_patterns": [
+      "Standbein zu weit vom Ball entfernt",
+      "Kopf nicht hoch vor dem Pass",
+      "Falscher Fußwinkel → ungenaue Richtung"
+    ],
+    "solutions": [
+      "Standbein neben Ball setzen",
+      "Vor Pass Blick heben, Ziel wählen",
+      "Fußfläche sauber zum Ziel ausrichten"
+    ],
+    "training_drills": [
+      "3er-Pass-Dreieck mit Kontaktbegrenzung",
+      "Pass unter Gegnerdruck mit Richtungswechsel",
+      "Passfolge mit Vororientierung (Kopf hoch vor Ballannahme)"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Freistöße",
+    "description": "Effektive Freistöße entscheiden Spiele. Fokus: Anlauf, Fußstellung und Zielpräzision.",
+    "error_patterns": [
+      "Zu schneller Anlauf, Balance verloren",
+      "Treffpunkt nicht mittig/unten am Ball",
+      "Kein Blick auf Torwartposition"
+    ],
+    "solutions": [
+      "Ruhiger, konstanter Anlauf",
+      "Fokus auf Ballmitte oder Ballunterseite",
+      "Vor Ausführung Blick auf Torwart"
+    ],
+    "training_drills": [
+      "Freistoß-Serien mit variabler Distanz",
+      "Zielschießen auf Markierungen im Tor",
+      "Freistöße mit Mauer und Torwartsimulation"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Ecken",
+    "description": "Gefährliche Ecken durch präzise Hereingaben und abgestimmte Laufwege.",
+    "error_patterns": [
+      "Zu flache oder zu hohe Hereingaben",
+      "Fehlende Absprache mit Mitspielern",
+      "Keine Variation (immer gleiche Ausführung)"
+    ],
+    "solutions": [
+      "Höhe und Schnitt anpassen (Innen- oder Außenseite)",
+      "Vor Ausführung Mitspieler signalisieren",
+      "Varianten trainieren: kurz, lang, auf den zweiten Pfosten"
+    ],
+    "training_drills": [
+      "Ecken mit Zielzonen im Strafraum",
+      "Ecken mit Gegnerdruck und Positionsspiel",
+      "Eckvarianten: direkt, kurz gespielt, zweite Welle"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Erster Kontakt",
+    "description": "Ein guter erster Kontakt eröffnet Zeit und Raum. Fokus: Ballannahme und Orientierung.",
+    "error_patterns": [
+      "Ball springt zu weit weg",
+      "Annahme in falsche Richtung",
+      "Kein Blick vor Ballannahme"
+    ],
+    "solutions": [
+      "Annahme mit passendem Fuß (offene Stellung)",
+      "Erster Kontakt in freie Richtung lenken",
+      "Vor Annahme Kopf hoch für Spielfeldüberblick"
+    ],
+    "training_drills": [
+      "Ballannahme mit Richtungswechsel (ohne Gegner)",
+      "Ballannahme unter Gegnerdruck",
+      "Kombination: Annahme + Pass oder Dribbling"
+    ]
+  }
+]

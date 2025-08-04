@@ -26,6 +26,8 @@ flutter:
     - assets/images/sv_waldeck_logo.png
     - assets/data/trainingsplan.json
     - assets/images/jonas.png
+    - assets/data/training_topics.json
+
 
 flutter_icons:
   android: true

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'plan_screen.dart';
 import 'diagramm_screen.dart';
 import 'info_screen.dart';
+import 'topics_screen.dart';
+import 'goals_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -11,11 +14,29 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+  int _selectedIndex = 0;
+  int _completedDays = 0;
 
-  int _completedDays = 0; // Nur noch benötigtes Feld
+late final List<Widget> _screens;
 
-  // Callback aus PlanScreen für Fortschritt
+@override
+void initState() {
+  super.initState();
+  _screens = [
+    PlanScreen(onProgressChanged: _updateProgress),
+    const DiagrammScreen(),
+    const InfoScreen(),
+    const TopicsScreen(),
+    const GoalsScreen(),
+  ];
+}
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   void _updateProgress(int completed, int total) {
     setState(() {
       _completedDays = completed;
@@ -24,63 +45,32 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      PlanScreen(onProgressChanged: _updateProgress),
-      const DiagrammScreen(),
-      const InfoScreen(),
-    ];
-
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/images/sv_waldeck_logo.png',
-              height: 32,
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'SV Waldeck Trainingsplan',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-      body: pages[_currentIndex],
-
-      // BottomNavigationBar (Material 3 NavigationBar)
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: [
-          NavigationDestination(
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        items: [
+          BottomNavigationBarItem(
             icon: Stack(
-              clipBehavior: Clip.none,
               children: [
                 const Icon(Icons.fitness_center),
                 if (_completedDays > 0)
                   Positioned(
-                    right: -6,
-                    top: -2,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: Colors.redAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 8,
+                      backgroundColor: Colors.red,
                       child: Text(
                         '$_completedDays',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -88,13 +78,21 @@ class _MainScreenState extends State<MainScreen> {
             ),
             label: 'Plan',
           ),
-          const NavigationDestination(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.show_chart),
-            label: 'Diagramm',
+            label: 'Diagramme',
           ),
-          const NavigationDestination(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.info_outline),
             label: 'Info',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: 'Themen',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.star_border),
+            label: 'Ziele',
           ),
         ],
       ),
