@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // automatisch durch flutterfire configure erstellt
+import 'firebase_options.dart';
 import 'screens/welcome_screen.dart';
 
-void main() async {
-  // Firebase muss vor runApp initialisiert werden
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Intl: deutsche Datums-/Zahlendaten initialisieren
+  Intl.defaultLocale = 'de_DE';
+  await initializeDateFormatting('de_DE');
+
   runApp(const MyApp());
 }
 
@@ -20,6 +29,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SV Waldeck Trainingsplan',
+
+      // ✅ Localizations-Delegates registrieren
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+
+      // ✅ unterstützte Sprachen
+      supportedLocales: const <Locale>[
+        Locale('de', 'DE'),
+        // falls du später EN willst: Locale('en'),
+      ],
+
+      // ✅ Standard-Locale (optional, aber konsistent)
+      locale: const Locale('de', 'DE'),
+
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -37,7 +63,6 @@ class MyApp extends StatelessWidget {
           centerTitle: false,
           elevation: 0,
         ),
-        // Fix: CardThemeData statt CardTheme
         cardTheme: const CardThemeData(
           color: Colors.white,
           elevation: 2,
@@ -68,7 +93,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const WelcomeScreen(), // Start mit WelcomeScreen
+      home: const WelcomeScreen(),
     );
   }
 }

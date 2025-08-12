@@ -10,12 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:            # ✅ NEU: für Material/Cupertino Localizations
+    sdk: flutter
   cupertino_icons: ^1.0.8
   fl_chart: ^0.66.2
   shared_preferences: ^2.2.2
   firebase_core: ^3.15.2
   firebase_auth: ^5.7.0
   cloud_firestore: ^5.6.12
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -30,7 +33,6 @@ flutter:
     - assets/data/trainingsplan.json
     - assets/images/jonas.png
     - assets/data/training_topics.json
-
 
 flutter_icons:
   android: true
